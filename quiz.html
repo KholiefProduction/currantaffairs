@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psychology and Economics Quiz</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script> <!-- Confetti library -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #ffb3d9, #d6a6f7, #b3e0ff);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        h1 {
+            color: #3b3b3b;
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        .question-container {
+            width: 90%;
+            max-width: 800px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        .answer-button {
+            background-color: #ff80bf;
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+            width: 80%;
+        }
+        .answer-button:hover {
+            background-color: #ff4d94;
+        }
+        .quit-button {
+            background-color: #b3c6ff;
+            border: none;
+            color: white;
+            padding: 12px;
+            margin-top: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+        .quit-button:hover {
+            background-color: #80b3ff;
+        }
+        .question-number, .score {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .question-text {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .banner {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            background-color: #ffccff;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #4d4d4d;
+            display: none;
+            z-index: 999;
+            transition: opacity 0.5s;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Psychology & Economics Quiz</h1>
+
+    <div class="banner" id="banner"></div>
+
+    <div id="quiz-container" class="question-container">
+        <div class="question-number" id="question-number">Question 1 of 30</div>
+        <div class="question-text" id="question-text">What is psychology?</div>
+        <button class="answer-button" onclick="checkAnswer(1)">The study of the brain</button>
+        <button class="answer-button" onclick="checkAnswer(0)">The study of behavior and the mind</button>
+        <button class="answer-button" onclick="checkAnswer(0)">A medical field for mental health</button>
+        <button class="answer-button" onclick="checkAnswer(0)">A part of biology</button>
+    </div>
+
+    <div class="score" id="score">Score: 0</div>
+    <button class="quit-button" onclick="quitQuiz()">Quit</button>
+
+    <script>
+        // Confetti animation
+        function triggerConfetti() {
+            confetti({
+                spread: 180,
+                startVelocity: 30,
+                elementCount: 200,
+                dragFriction: 0.1,
+                duration: 3000,
+                shapes: ['square', 'circle'],
+                colors: ['#ff80bf', '#b3c6ff', '#ffccff']
+            });
+        }
+
+        // Question and answer data
+        const questions = [
+            { question: "What is psychology?", answers: [
+                { text: "The study of the brain", correct: false },
+                { text: "The study of behavior and the mind", correct: true },
+                { text: "A medical field for mental health", correct: false },
+                { text: "A part of biology", correct: false }
+            ]},
+            { question: "What is the scientific method?", answers: [
+                { text: "A series of random steps", correct: false },
+                { text: "A structured approach to research", correct: true },
+                { text: "Only used in psychology", correct: false },
+                { text: "Just a theory", correct: false }
+            ]},
+            { question: "What is scarcity in economics?", answers: [
+                { text: "An abundance of resources", correct: false },
+                { text: "The lack of resources to meet needs", correct: true },
+                { text: "A type of trade", correct: false },
+                { text: "A theory in economics", correct: false }
+            ]},
+            { question: "What is a primary research method?", answers: [
+                { text: "Surveying existing articles", correct: false },
+                { text: "Collecting new data", correct: true },
+                { text: "Reading books", correct: false },
+                { text: "Watching documentaries", correct: false }
+            ]},
+            { question: "What does GDP stand for?", answers: [
+                { text: "Global Development Process", correct: false },
+                { text: "Gross Domestic Product", correct: true },
+                { text: "General Distribution Price", correct: false },
+                { text: "Gross Data Product", correct: false }
+            ]},
+            { question: "Which is a major principle of behavioral psychology?", answers: [
+                { text: "Conditioning", correct: true },
+                { text: "Dream analysis", correct: false },
+                { text: "Rationalization", correct: false },
+                { text: "Cognitive dissonance", correct: false }
+            ]},
+            { question: "What does the term 'economics' mean?", answers: [
+                { text: "The study of government", correct: false },
+                { text: "The study of trade and wealth", correct: true },
+                { text: "The study of environmental factors", correct: false },
+                { text: "The study of natural resources", correct: false }
+            ]},
+            { question: "Which of the following is a basic economic problem?", answers: [
+                { text: "Scarcity", correct: true },
+                { text: "High taxes", correct: false },
+                { text: "High wages", correct: false },
+                { text: "Deflation", correct: false }
+            ]},
+            { question: "Which theory is associated with Sigmund Freud?", answers: [
+                { text: "Cognitive theory", correct: false },
+                { text: "Behavioral theory", correct: false },
+                { text: "Psychoanalytic theory", correct: true },
+                { text: "Humanistic theory", correct: false }
+            ]},
+            { question: "In economics, what does a 'market' refer to?", answers: [
+                { text: "A physical store", correct: false },
+                { text: "A system of trade and exchange", correct: true },
+                { text: "A government building", correct: false },
+                { text: "A group of people", correct: false }
+            ]},
+            { question: "What is the law of demand in economics?", answers: [
+                { text: "As price increases, demand increases", correct: false },
+                { text: "As price decreases, demand increases", correct: true },
+                { text: "As price increases, supply decreases", correct: false },
+                { text: "As demand increases, supply decreases", correct: false }
+            ]},
+            { question: "What does Maslow's hierarchy of needs show?", answers: [
+                { text: "Basic needs are not important", correct: false },
+                { text: "The importance of self-actualization", correct: true },
+                { text: "The idea of conditioning", correct: false },
+                { text: "Theories of motivation", correct: false }
+            ]},
+            { question: "What is a positive externality in economics?", answers: [
+                { text: "A cost imposed on others", correct: false },
+                { text: "A benefit experienced by others", correct: true },
+                { text: "A form of taxation", correct: false },
+                { text: "The negative impact of a policy", correct: false }
+            ]},
+            { question: "What is the main focus of cognitive psychology?", answers: [
+                { text: "Behavioral conditioning", correct: false },
+                { text: "Mental processes such as memory and problem solving", correct: true },
+                { text: "Human motivation", correct: false },
+                { text: "Environmental factors", correct: false }
+            ]},
+            { question: "What is inflation?", answers: [
+                { text: "A decrease in prices", correct: false },
+                { text: "A rise in the general price level", correct: true },
+                { text: "A rise in wages", correct: false },
+                { text: "A decrease in wages", correct: false }
+            ]},
+            { question: "Which of the following is an example of classical conditioning?", answers: [
+                { text: "Teaching a dog to fetch", correct: false },
+                { text: "Pavlov's dogs salivating at the sound of a bell", correct: true },
+                { text: "Teaching a child to tie their shoes", correct: false },
+                { text: "Learning to ride a bike", correct: false }
+            ]},
+            { question: "What is the central focus of economics?", answers: [
+                { text: "How people make decisions", correct: true },
+                { text: "How societies handle crime", correct: false },
+                { text: "How people create art", correct: false },
+                { text: "How political systems function", correct: false }
+            ]},
+            { question: "What is the main goal of psychology?", answers: [
+                { text: "To understand and change behavior", correct: true },
+                { text: "To study animal behavior", correct: false },
+                { text: "To understand the brain", correct: false },
+                { text: "To learn about the history of psychology", correct: false }
+            ]},
+            { question: "What is an example of a negative externality?", answers: [
+                { text: "Pollution from a factory", correct: true },
+                { text: "Education funding", correct: false },
+                { text: "A free public park", correct: false },
+                { text: "Community gardens", correct: false }
+            ]},
+            { question: "Which of the following is a characteristic of a free market economy?", answers: [
+                { text: "Government ownership of resources", correct: false },
+                { text: "Private ownership of resources", correct: true },
+                { text: "Controlled pricing by the government", correct: false },
+                { text: "Centralized planning by the state", correct: false }
+            ]},
+            { question: "What does the term 'opportunity cost' refer to?", answers: [
+                { text: "The benefit gained from making a choice", correct: false },
+                { text: "The cost of the next best alternative forgone", correct: true },
+                { text: "The money paid to employees", correct: false },
+                { text: "The total revenue earned", correct: false }
+            ]},
+            { question: "What is the main goal of behavioral economics?", answers: [
+                { text: "To understand the brain's structure", correct: false },
+                { text: "To combine psychological insights with economic theory", correct: true },
+                { text: "To analyze government policies", correct: false },
+                { text: "To predict the stock market", correct: false }
+            ]},
+            { question: "Which of the following is a feature of market equilibrium?", answers: [
+                { text: "Supply exceeds demand", correct: false },
+                { text: "Demand exceeds supply", correct: false },
+                { text: "Quantity supplied equals quantity demanded", correct: true },
+                { text: "Government intervention is required", correct: false }
+            ]},
+            { question: "What is the concept of 'supply and demand'?", answers: [
+                { text: "The relationship between buyers and sellers", correct: true },
+                { text: "The interaction of government and markets", correct: false },
+                { text: "The value of a currency", correct: false },
+                { text: "A tax on products", correct: false }
+            ]}
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        // Display the current question and score
+        function displayQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            const questionText = document.getElementById("question-text");
+            const questionNumber = document.getElementById("question-number");
+            const scoreText = document.getElementById("score");
+
+            // Set the question text and number
+            questionText.textContent = currentQuestion.question;
+            questionNumber.textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+
+            // Update the score display
+            scoreText.textContent = `Score: ${score}`;
+
+            // Clear previous answers and add new ones
+            const buttons = document.querySelectorAll(".answer-button");
+            buttons.forEach(button => button.remove());
+
+            // Randomize the order of answers
+            currentQuestion.answers.sort(() => Math.random() - 0.5);
+
+            // Create buttons for answers
+            currentQuestion.answers.forEach(answer => {
+                const button = document.createElement("button");
+                button.classList.add("answer-button");
+                button.textContent = answer.text;
+                button.onclick = () => checkAnswer(answer.correct);
+                document.getElementById("quiz-container").appendChild(button);
+            });
+        }
+
+        // Check if the answer is correct and move to the next question
+        function checkAnswer(isCorrect) {
+            if (isCorrect) {
+                showBanner("Awesome!"); // Display the banner for a correct answer
+                triggerConfetti(); // Trigger confetti effect
+                score++; // Increment the score
+            } else {
+                showBanner("Oops! Try again.");
+            }
+
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                displayQuestion();
+            } else {
+                alert(`Congratulations, you've finished the quiz! Your final score is ${score}/${questions.length}.`);
+                window.location.href = "index.html"; // Redirect to home page
+            }
+        }
+
+        // Function to show the banner for a brief time
+        function showBanner(message) {
+            const banner = document.getElementById("banner");
+            banner.textContent = message;
+            banner.style.display = "block";
+            setTimeout(() => {
+                banner.style.display = "none";
+            }, 2000); // Hide after 2 seconds
+        }
+
+        // Function to quit and go back to the home page
+        function quitQuiz() {
+            window.location.href = "index.html"; // Redirect to the index.html
+        }
+
+        // Initialize the quiz on page load
+        displayQuestion();
+    </script>
+
+</body>
+</html>
